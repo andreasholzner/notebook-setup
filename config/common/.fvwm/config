@@ -1,0 +1,20 @@
+#-----------------------------------------------------------------------------#
+#
+# 1. Image paths
+# These paths are colon-separated lists, just like regular unix PATH
+#
+#-----------------------------------------------------------------------------#
+
+# Specifies a colon separated list  of  directories  in  which  to
+# search  for  images  (both  monochrome  and pixmap).  To find an
+# image given by a relative pathname, fvwm looks into each  direc-
+# tory listed in turn, and uses the first file found.
+ImagePath $HOME/.fvwm/icons/:/usr/share/pixmaps/:/usr/share/icons/
+
+#-----------------------------------------------------------------------------#
+#
+# Start the Show
+#
+#-----------------------------------------------------------------------------#
+
+PipeRead `ls -1 $HOME/.fvwm/*.conf | while read i; do echo Read $i; done`
