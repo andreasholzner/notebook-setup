@@ -1,0 +1,5 @@
+#!/bin/sh
+
+basedir=`dirname "$0"`
+$HOME/bin/node-v0.10.26-linux-x64/bin/node "$basedir/wrapper.js" --jshint "$@"
+exit $?
