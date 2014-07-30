@@ -30,6 +30,8 @@ my @config_dirs = find_top_level_dirs(config => 1);
 process_normal_dirs(@non_config_dirs);
 process_config_dirs(@config_dirs);
 
+post_process();
+
 
 sub check_and_change_to_repo_dir {
     my $repo_dir = shift;
@@ -100,4 +102,8 @@ sub copy_file {
     } else {
         copy($src, $target) or die "Failed to copy '$src' -> '$target': $!";
     }
+}
+
+sub post_process {
+    system 'emacs --no-window-system --no-splash --no-desktop --funcall emc-merge-config-files --kill';
 }
