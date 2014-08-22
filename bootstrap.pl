@@ -2,7 +2,8 @@
 
 use strict;
 use warnings;
-use feature 'say';
+use feature qw(say);
+use experimental qw(switch);
 
 use Cwd;
 use File::Compare qw(compare compare_text);
@@ -24,11 +25,14 @@ GetOptions(
 $repo_dir = $ARGV[0] if not $repo_dir and $ARGV[0];
 
 check_and_change_to_repo_dir($repo_dir);
-my @non_config_dirs = find_top_level_dirs(config => 0);
-my @config_dirs = find_top_level_dirs(config => 1);
+my @copy_dirs = find_top_level_dirs('copy');
+my @config_dirs = find_top_level_dirs('config');
+my @perl5_dirs = find_top_level_dirs('perl5');
 
-process_normal_dirs(@non_config_dirs);
+process_copy_dirs(@copy_dirs);
 process_config_dirs(@config_dirs);
+# TODO
+#process_perl5_dirs(@perl5_dirs);
 
 post_process();
 
@@ -44,17 +48,26 @@ sub check_and_change_to_repo_dir {
 }
 
 sub find_top_level_dirs {
-    my %args = @_;
+    my $type = shift;
 
-    if ($args{config}) {
-        my $hostname = hostname;
-        return grep { -d $_ and /\L$hostname$|common$/ } glob 'config/*';
-    } else {
-        return grep { -d $_ and $_ ne 'config' } glob '*';
+    for ($type) {
+        when ('copy') {
+            return grep { -d $_ and not $_ ~~ [qw(config perl5)] } glob '*';
+        }
+        when ('config') {
+            my $hostname = hostname;
+            return grep { -d $_ and /\L$hostname$|common$/ } glob 'config/*';
+        }
+        when ('perl5') {
+            return  grep { -d $_ } glob 'perl5/*';
+        }
+        default {
+            die 'invalid directory type';
+        }
     }
 }
 
-sub process_normal_dirs {
+sub process_copy_dirs {
     my @dirs_to_process = @_;
 
     foreach my $dir (@dirs_to_process) {
