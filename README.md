@@ -27,3 +27,48 @@ wobei `<DIR>` die Arbeitskopie des notebook-setup Repositories sein muss.
 - Konfigurationsdateien werden passend für den aktuellen Hostnamen kopiert (relativ zu `$HOME`)
 - Perl5 Module werden aktuell noch nicht behandelt
 - Alle anderen Dateien werden einfach nach `$HOME` kopiert
+
+
+## Perl5 ##
+
+Alle Verzeichnisse unter `perl5` enthalten Perl5-Pakete, die mit `Dist::Zilla` gebaut werden.
+
+### Paketstruktur ###
+
+-   `dist.ini`: Dist::Zilla Konfiguration für das Paket
+-   `lib`: Enthält die Perlmodule
+
+    Wird automatisch erzeugt, wenn das Paket erzeugt wird.
+
+        dzil new My::Packet
+
+-   `t`: Enthält die Tests
+-   `bin`: Enthält ausführbare Dateien
+
+### Bauen ###
+
+Alle folgenden Befehle werden innerhalb des betroffenen Pakets ausgeführt.
+
+- Tests ausführen
+
+        dzil test
+
+- Paket bauen (erzeugt ein `My-Packet-$VERSION.tar.gz`)
+
+        dzil build
+
+- aufräumen
+
+        dzil clean
+
+### Installieren ###
+
+Ein so gebautes Paket lässt sich einfach mit `cpanm` installieren
+
+    cpanm My-Packet-$VERSION.tag.gz
+
+und mit
+
+    cpanm --uninstall My::Packet
+
+wieder deinstallieren.
