@@ -3,11 +3,11 @@ notebook-setup
 
 ## Struktur ##
 
-- `config`: Konfigurationsdateien
--- `common`: für alle Rechner
--- `$hostname`: spezifisch für Rechner mit `hostname = $hostname`
-- `perl5`: Perl5 Module (müssen aktuell eigenständig installiert werden)
-- `*`: Alle anderen Verzeichnisse haben keine spezielle Bedeutung und werden einfach kopiert.
+-   `config`: Konfigurationsdateien
+    -- `common`: für alle Rechner
+    -- `$hostname`: spezifisch für Rechner mit `hostname = $hostname`
+-   `perl5`: Perl5 Module (müssen aktuell eigenständig installiert werden)
+-   `*`: Alle anderen Verzeichnisse haben keine spezielle Bedeutung und werden einfach kopiert.
 
 ## Benutzung ##
 
@@ -15,7 +15,7 @@ Einfach das Skript `bootstrap.pl` aufrufen,
 
     bootstrap.pl --source-directory=<DIR>
 
-wobei <DIR> die Arbeitskopie des notebook-setup Repositories sein muss.
+wobei `<DIR>` die Arbeitskopie des notebook-setup Repositories sein muss.
 
 ### Optionen ###
 
