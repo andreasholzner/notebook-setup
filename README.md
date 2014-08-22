@@ -4,8 +4,8 @@ notebook-setup
 ## Struktur ##
 
 -   `config`: Konfigurationsdateien
-    -- `common`: für alle Rechner
-    -- `$hostname`: spezifisch für Rechner mit `hostname = $hostname`
+    - `common`: für alle Rechner
+    - `$hostname`: spezifisch für Rechner mit `hostname = $hostname`
 -   `perl5`: Perl5 Module (müssen aktuell eigenständig installiert werden)
 -   `*`: Alle anderen Verzeichnisse haben keine spezielle Bedeutung und werden einfach kopiert.
 
@@ -24,6 +24,6 @@ wobei `<DIR>` die Arbeitskopie des notebook-setup Repositories sein muss.
 
 ### Beschreibung ###
 
-- Konfigurationsdateien werden passend für den aktuellen Hostnamen kopiert (relativ zu $HOME)
+- Konfigurationsdateien werden passend für den aktuellen Hostnamen kopiert (relativ zu `$HOME`)
 - Perl5 Module werden aktuell noch nicht behandelt
-- Alle anderen Dateien werden einfach nach $HOME kopiert
+- Alle anderen Dateien werden einfach nach `$HOME` kopiert
