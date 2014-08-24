@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use lib qw(/home/holznera/lib/perl5 /usr/lib/fvwm/2.6.5);
+use local::lib;
 use feature 'say';
 
 use Storable qw(store retrieve freeze);
