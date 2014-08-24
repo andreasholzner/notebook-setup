@@ -2,7 +2,8 @@
 
 use strict;
 use warnings;
-use lib qw(/home/holznera/lib/perl5 /usr/lib/fvwm/2.6.5);
+use local::lib;
+use lib qw(/usr/lib/fvwm/2.6.5);
 use feature 'say';
 
 use Log::Log4perl qw(:easy);
@@ -20,7 +21,6 @@ $Storable::canonical = 1;
 const my  $CONFIG_FILE => catfile($ENV{HOME}, '.display.config');
 
 my %display_status = get_xrandr_info;
-condense_info(%display_status);
 
 my $display_config = {};
 $display_config = retrieve($CONFIG_FILE) if -e $CONFIG_FILE;
@@ -31,10 +31,7 @@ unless (%$display_config) {
     store($new_config, $CONFIG_FILE);
     exit 0;
 }
-say "YYYYYYY" . dump(\%display_status);
 my $current_displays_key = get_attached_displays_key(%display_status);
-say "AAAAAAAAAA $current_displays_key";
-say "BBBBBBBBBB" . dump($display_config);
 
 if ($display_config->{current_displays_key} eq $current_displays_key) {
     DEBUG 'Attached displays have not changed.';
@@ -64,7 +61,7 @@ sub update_config {
     INFO 'Display config changed (but still the same displays are in use).';
     $config->{display_configs}{$config->{current_displays_key}} = { %new_status };
     store($config, $CONFIG_FILE);
-    Restart();
+    FvwmCommand::FvwmCommand('Restart');
     notify(summary => 'Display Konfiguration geändert', message => 'Geänderte Konfiguration gespeichert.', icon => 'display.png');
 }
 
@@ -75,14 +72,12 @@ sub handle_display_change {
     my $current_key = get_attached_displays_key(%new_status);
     if (exists $config->{display_configs}{$current_key}) {
         INFO "Found known config for attached displays '$current_key'.";
-        # TODO
-        # apply config
-        # restart Fvwm
-        # message to user
+		configure_displays(%{$config->{display_configs}{$current_key}});
+		FvwmCommand::FvwmCommand('Restart');
+		notify(summary => 'Display Konfiguration geändert', message => 'Bekannte Einstellung angewandt.', icon => 'display.png');
     } else {
-        # TODO
-        # activate display
-        # restart Fvwm
-        # message to user
+		configure_displays(%new_status);
+		FvwmCommand::FvwmCommand('Restart');
+		notify(summary => 'Display Konfiguration geändert', message => 'Neue Einstellung geraten.', icon => 'display.png');
     }
 }

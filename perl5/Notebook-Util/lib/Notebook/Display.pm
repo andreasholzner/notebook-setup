@@ -5,18 +5,18 @@ use warnings;
 
 use Exporter;
 use Parse::EDID;
+use Notebook::Util::Command;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(
                     get_xrandr_info
-                    condense_info
                     get_attached_displays_key
+					configure_displays
             );
 our @EXPORT_OK = qw(
                        analyze_status_line
                        get_monitor_name
                        get_edid
-                       get_resolutions
                );
 
 sub get_attached_displays_key {
@@ -28,13 +28,6 @@ sub get_attached_displays_key {
         push @display_keys, join ';', $pin, @{$contact_status{$pin}}{qw(is_connected name)};
     }
     return join ':', @display_keys;
-}
-
-sub condense_info {
-    my %full_status = @_;
-    foreach my $pin (keys %full_status) {
-        delete $full_status{$pin}{available_resolutions};
-    }
 }
 
 sub get_xrandr_info {
@@ -54,8 +47,7 @@ sub get_xrandr_info {
         my $raw_data = $contact_status{$_}{raw};
         analyze_status_line($contact_status{$_});
         if ($contact_status{$_}{is_connected}) {
-            $contact_status{$_}{name} = $_ ne 'eDP1' ? get_monitor_name($raw_data) : 'intern';
-            $contact_status{$_}{available_resolutions} = get_resolutions($raw_data);
+            $contact_status{$_}{name} = ($_ ne 'eDP1' and $_ ne 'LVDS-0') ? get_monitor_name($raw_data) : 'intern';
         }
         delete $contact_status{$_}{raw};
     }
@@ -92,13 +84,25 @@ sub get_edid {
     }
 }
 
-sub get_resolutions {
-    my $raw_lines = shift;
-    my @resolutions = ();
-    foreach (@$raw_lines) {
-        push @resolutions, $1 if /^\s*(\d+x\d+)/;
-    }
-    return \@resolutions;
+sub configure_displays {
+	my %contact_status = @_;
+
+	my @xrandr_args = ();
+	foreach my $pin (grep { $contact_status{$_}{is_connected} } keys %contact_status) {
+		push @xrandr_args, '--output', $pin;
+		push @xrandr_args, '--primary' if $contact_status{$pin}{is_primary};
+		if ($contact_status{$pin}{resolution}) {
+			push @xrandr_args, '--mode', $contact_status{$pin}{resolution};
+		} else {
+			push @xrandr_args, '--auto';
+		}
+		if ($contact_status{$pin}{position}) {
+			$contact_status{$pin}{position} =~ /([-+]\d+)([-+]\d+)/;
+			push @xrandr_args, '--pos', "${1}x$2";
+		}
+	}
+
+	Notebook::Util::Command->new('xrandr', @xrandr_args)->run();
 }
 
 1;
