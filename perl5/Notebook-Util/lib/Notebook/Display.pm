@@ -6,6 +6,7 @@ use warnings;
 use Exporter;
 use Const::Fast;
 use Parse::EDID;
+use List::Util qw(first);
 use Notebook::Util::Command;
 
 our @ISA = qw(Exporter);
@@ -19,6 +20,8 @@ our @EXPORT_OK = qw(
                        get_monitor_name
                        get_edid
                );
+
+const our $INTERNAL_DISPLAY_NAME => 'intern';
 
 sub get_attached_displays_key {
     my %contact_status = @_;
@@ -50,7 +53,7 @@ sub get_xrandr_info {
         my $raw_data = $contact_status{$_}{raw};
         analyze_status_line($contact_status{$_});
         if ($contact_status{$_}{is_connected}) {
-            $contact_status{$_}{name} = ($_ ne 'eDP1' and $_ ne 'LVDS-0') ? get_monitor_name($raw_data) : 'intern';
+            $contact_status{$_}{name} = get_monitor_name($raw_data);
         }
         delete $contact_status{$_}{raw};
     }
@@ -75,7 +78,8 @@ sub analyze_status_line {
 sub get_monitor_name {
 	my $raw_data = shift;
     my $edid = get_edid($raw_data);
-    $edid->{monitor_name}
+	
+    $edid->{monitor_name} or guess_internal_display($raw_data);
 }
 
 sub get_edid {
@@ -86,6 +90,15 @@ sub get_edid {
     eval {
         parse_edid(find_edid_in_string($source));
     }
+}
+
+sub guess_internal_display {
+	my $raw_data = shift;
+
+	my $connector_type_line = first { /ConnectorType:/ } @$raw_data;
+	$connector_type_line =~ /ConnectorType:\s*(\S+)/;
+
+	return $1 eq 'Panel' ? $INTERNAL_DISPLAY_NAME : undef;
 }
 
 sub configure_displays {
