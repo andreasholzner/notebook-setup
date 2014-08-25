@@ -19,7 +19,7 @@ sub new {
 
     my $self = {
         command => \@command,
-        readable_command => join( ' ', @command),
+        readable_command => join(' ', @command),
         return_code => undef,
     };
     bless $self, $class;
@@ -33,6 +33,12 @@ sub run {
     $logger->info("Executing command '" . $self->{readable_command} . "'");
     system @{$self->{command}};
     $self->{return_code} = $?;
+}
+
+sub run_with_backticks {
+	my $self = shift;
+
+	return qx($self->{readable_command});
 }
 
 sub handle_result {

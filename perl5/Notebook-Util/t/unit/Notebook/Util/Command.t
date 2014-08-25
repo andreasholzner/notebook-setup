@@ -66,4 +66,19 @@ subtest 'analyze return code' => sub {
     is analyze_return_code(256) => 'Command exited with exit code: 1.';
 };
 
+subtest 'run_with_backticks' => sub {
+	my %commands = (
+					'as list' => Notebook::Util::Command->new(qw(ls -ld /tmp)),
+					'as string' => Notebook::Util::Command->new('ls -ld /tmp'),
+				   );
+	foreach (keys %commands) {
+		subtest "command $_" => sub {
+			my @output = $commands{$_}->run_with_backticks();
+
+			is scalar @output => 1, 'number of output lines';
+			like $output[0] => qr{/tmp\n}, 'newlines are preserved';
+		};
+	}
+};
+
 done_testing;
