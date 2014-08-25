@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Exporter;
+use Const::Fast;
 use Parse::EDID;
 use Notebook::Util::Command;
 
@@ -23,9 +24,10 @@ sub get_attached_displays_key {
     my %contact_status = @_;
     my @display_keys = ();
     foreach my $pin (sort keys %contact_status) {
-        no autovivification;
         no warnings 'uninitialized';
-        push @display_keys, join ';', $pin, @{$contact_status{$pin}}{qw(is_connected name)};
+		if ($contact_status{$pin}{is_connected}) {
+			push @display_keys, join ';', $pin, $contact_status{$pin}{name};
+		}
     }
     return join ':', @display_keys;
 }
@@ -33,9 +35,10 @@ sub get_attached_displays_key {
 sub get_xrandr_info {
     my %contact_status = ();
     my $current_pin;
-    foreach (`xrandr --prop`) {
+    foreach (Notebook::Util::Command->new('xrandr --prop')->run_with_backticks()) {
         chomp;
-        if (/connected/) {
+		next if /^Screen/;
+        if (/^\S/) {
             $current_pin = (split)[0];
         }
         if ($current_pin) {
@@ -70,7 +73,8 @@ sub analyze_status_line {
 }
 
 sub get_monitor_name {
-    my $edid = get_edid(@_);
+	my $raw_data = shift;
+    my $edid = get_edid($raw_data);
     $edid->{monitor_name}
 }
 
@@ -88,17 +92,21 @@ sub configure_displays {
 	my %contact_status = @_;
 
 	my @xrandr_args = ();
-	foreach my $pin (grep { $contact_status{$_}{is_connected} } keys %contact_status) {
+	foreach my $pin (keys %contact_status) {
 		push @xrandr_args, '--output', $pin;
-		push @xrandr_args, '--primary' if $contact_status{$pin}{is_primary};
-		if ($contact_status{$pin}{resolution}) {
-			push @xrandr_args, '--mode', $contact_status{$pin}{resolution};
+		if ($contact_status{$pin}{is_connected}) {
+			push @xrandr_args, '--primary' if $contact_status{$pin}{is_primary};
+			if ($contact_status{$pin}{resolution}) {
+				push @xrandr_args, '--mode', $contact_status{$pin}{resolution};
+			} else {
+				push @xrandr_args, '--auto';
+			}
+			if ($contact_status{$pin}{position}) {
+				$contact_status{$pin}{position} =~ /([-+]\d+)([-+]\d+)/;
+				push @xrandr_args, '--pos', "${1}x$2";
+			}
 		} else {
-			push @xrandr_args, '--auto';
-		}
-		if ($contact_status{$pin}{position}) {
-			$contact_status{$pin}{position} =~ /([-+]\d+)([-+]\d+)/;
-			push @xrandr_args, '--pos', "${1}x$2";
+			push @xrandr_args, '--off';
 		}
 	}
 
