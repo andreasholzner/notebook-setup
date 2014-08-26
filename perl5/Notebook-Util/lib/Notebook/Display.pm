@@ -13,7 +13,7 @@ our @ISA = qw(Exporter);
 our @EXPORT = qw(
                     get_xrandr_info
                     get_attached_displays_key
-					configure_displays
+                    configure_displays
             );
 our @EXPORT_OK = qw(
                        analyze_status_line
@@ -28,9 +28,9 @@ sub get_attached_displays_key {
     my @display_keys = ();
     foreach my $pin (sort keys %contact_status) {
         no warnings 'uninitialized';
-		if ($contact_status{$pin}{is_connected}) {
-			push @display_keys, join ';', $pin, $contact_status{$pin}{name};
-		}
+        if ($contact_status{$pin}{is_connected}) {
+            push @display_keys, join ';', $pin, $contact_status{$pin}{name};
+        }
     }
     return join ':', @display_keys;
 }
@@ -40,7 +40,7 @@ sub get_xrandr_info {
     my $current_pin;
     foreach (Notebook::Util::Command->new('xrandr --prop')->run_with_backticks()) {
         chomp;
-		next if /^Screen/;
+        next if /^Screen/;
         if (/^\S/) {
             $current_pin = (split)[0];
         }
@@ -76,9 +76,9 @@ sub analyze_status_line {
 }
 
 sub get_monitor_name {
-	my $raw_data = shift;
+    my $raw_data = shift;
     my $edid = get_edid($raw_data);
-	
+    
     $edid->{monitor_name} or guess_internal_display($raw_data);
 }
 
@@ -93,37 +93,37 @@ sub get_edid {
 }
 
 sub guess_internal_display {
-	my $raw_data = shift;
+    my $raw_data = shift;
 
-	my $connector_type_line = first { /ConnectorType:/ } @$raw_data;
-	$connector_type_line =~ /ConnectorType:\s*(\S+)/;
+    my $connector_type_line = first { /ConnectorType:/ } @$raw_data;
+    $connector_type_line =~ /ConnectorType:\s*(\S+)/;
 
-	return $1 eq 'Panel' ? $INTERNAL_DISPLAY_NAME : undef;
+    return $1 eq 'Panel' ? $INTERNAL_DISPLAY_NAME : undef;
 }
 
 sub configure_displays {
-	my %contact_status = @_;
+    my %contact_status = @_;
 
-	my @xrandr_args = ();
-	foreach my $pin (keys %contact_status) {
-		push @xrandr_args, '--output', $pin;
-		if ($contact_status{$pin}{is_connected}) {
-			push @xrandr_args, '--primary' if $contact_status{$pin}{is_primary};
-			if ($contact_status{$pin}{resolution}) {
-				push @xrandr_args, '--mode', $contact_status{$pin}{resolution};
-			} else {
-				push @xrandr_args, '--auto';
-			}
-			if ($contact_status{$pin}{position}) {
-				$contact_status{$pin}{position} =~ /([-+]\d+)([-+]\d+)/;
-				push @xrandr_args, '--pos', "${1}x$2";
-			}
-		} else {
-			push @xrandr_args, '--off';
-		}
-	}
+    my @xrandr_args = ();
+    foreach my $pin (keys %contact_status) {
+        push @xrandr_args, '--output', $pin;
+        if ($contact_status{$pin}{is_connected}) {
+            push @xrandr_args, '--primary' if $contact_status{$pin}{is_primary};
+            if ($contact_status{$pin}{resolution}) {
+                push @xrandr_args, '--mode', $contact_status{$pin}{resolution};
+            } else {
+                push @xrandr_args, '--auto';
+            }
+            if ($contact_status{$pin}{position}) {
+                $contact_status{$pin}{position} =~ /([-+]\d+)([-+]\d+)/;
+                push @xrandr_args, '--pos', "${1}x$2";
+            }
+        } else {
+            push @xrandr_args, '--off';
+        }
+    }
 
-	Notebook::Util::Command->new('xrandr', @xrandr_args)->run();
+    Notebook::Util::Command->new('xrandr', @xrandr_args)->run();
 }
 
 1;
