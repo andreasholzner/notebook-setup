@@ -6,7 +6,7 @@ use warnings;
 use Exporter;
 use Const::Fast;
 use Parse::EDID;
-use List::Util qw(first);
+use List::Util qw(first any);
 use Notebook::Util::Command;
 
 our @ISA = qw(Exporter);
@@ -78,7 +78,7 @@ sub analyze_status_line {
 sub get_monitor_name {
     my $raw_data = shift;
     my $edid = get_edid($raw_data);
-    
+
     $edid->{monitor_name} or guess_internal_display($raw_data);
 }
 
@@ -96,9 +96,13 @@ sub guess_internal_display {
     my $raw_data = shift;
 
     my $connector_type_line = first { /ConnectorType:/ } @$raw_data;
-    $connector_type_line =~ /ConnectorType:\s*(\S+)/;
+    if ($connector_type_line) {
+        $connector_type_line =~ /ConnectorType:\s*(\S+)/;
+        return $1 eq 'Panel' ? $INTERNAL_DISPLAY_NAME : undef;
+    }
 
-    return $1 eq 'Panel' ? $INTERNAL_DISPLAY_NAME : undef;
+    my $has_backlight = any { /backlight/i } @$raw_data;
+    return $has_backlight ? $INTERNAL_DISPLAY_NAME : undef;
 }
 
 sub configure_displays {
