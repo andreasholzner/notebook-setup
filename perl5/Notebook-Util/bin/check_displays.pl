@@ -16,7 +16,7 @@ use Const::Fast;
 use Data::Dump qw(dump);
 
 
-Log::Log4perl->easy_init({ level => $DEBUG, file => '>>' . catfile($ENV{HOME}, '.xsession.log') });
+Log::Log4perl->easy_init({ level => $TRACE, file => '>>' . catfile($ENV{HOME}, '.xsession.log') });
 $Storable::canonical = 1;
 const my  $CONFIG_FILE => catfile($ENV{HOME}, '.display.config');
 
@@ -32,6 +32,8 @@ unless (%$display_config) {
     exit 0;
 }
 my $current_displays_key = get_attached_displays_key(%display_status);
+DEBUG "Determined current display key: $current_displays_key";
+TRACE "Config file content: " . dump($display_config);
 
 if ($display_config->{current_displays_key} eq $current_displays_key) {
     DEBUG 'Attached displays have not changed.';
@@ -70,14 +72,15 @@ sub handle_display_change {
 
     INFO 'Attached displays have changed.';
     my $current_key = get_attached_displays_key(%new_status);
+    DEBUG "new displays_key: $current_key";
     if (exists $config->{display_configs}{$current_key}) {
         INFO "Found known config for attached displays '$current_key'.";
-		configure_displays(%{$config->{display_configs}{$current_key}});
-		FvwmCommand::FvwmCommand('Restart');
-		notify(summary => 'Display Konfiguration geändert', message => 'Bekannte Einstellung angewandt.', icon => 'display.png');
+        configure_displays(%{$config->{display_configs}{$current_key}});
+        FvwmCommand::FvwmCommand('Restart');
+        notify(summary => 'Display Konfiguration geändert', message => 'Bekannte Einstellung angewandt.', icon => 'display.png');
     } else {
-		configure_displays(%new_status);
-		FvwmCommand::FvwmCommand('Restart');
-		notify(summary => 'Display Konfiguration geändert', message => 'Neue Einstellung geraten.', icon => 'display.png');
+        configure_displays(%new_status);
+        FvwmCommand::FvwmCommand('Restart');
+        notify(summary => 'Display Konfiguration geändert', message => 'Neue Einstellung geraten.', icon => 'display.png');
     }
 }
