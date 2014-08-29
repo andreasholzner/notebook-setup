@@ -5,7 +5,7 @@ use warnings;
 use local::lib;
 use feature 'say';
 
-use Storable qw(store retrieve freeze);
+use Storable qw(retrieve);
 use File::Spec::Functions;
 use Const::Fast;
 use Data::Dump qw(dump);
