@@ -1,4 +1,4 @@
-package Notebook::Display;
+package Notebook::Display::Information;
 
 use strict;
 use warnings;
@@ -6,20 +6,12 @@ use warnings;
 use Exporter;
 use Const::Fast;
 use Parse::EDID;
-use List::Util qw(first any);
+use List::Util 1.33 qw(first any);
 use Notebook::Util::Command;
 
-our @ISA = qw(Exporter);
-our @EXPORT = qw(
-                    get_xrandr_info
-                    get_attached_displays_key
-                    configure_displays
-            );
-our @EXPORT_OK = qw(
-                       analyze_status_line
-                       get_monitor_name
-                       get_edid
-               );
+use base qw(Exporter);
+our @EXPORT = qw(get_xrandr_info get_attached_displays_key);
+our @EXPORT_OK = qw(analyze_status_line get_monitor_name get_edid);
 
 const our $INTERNAL_DISPLAY_NAME => 'intern';
 
@@ -103,31 +95,6 @@ sub guess_internal_display {
 
     my $has_backlight = any { /backlight/i } @$raw_data;
     return $has_backlight ? $INTERNAL_DISPLAY_NAME : undef;
-}
-
-sub configure_displays {
-    my %contact_status = @_;
-
-    my @xrandr_args = ();
-    foreach my $pin (keys %contact_status) {
-        push @xrandr_args, '--output', $pin;
-        if ($contact_status{$pin}{is_connected}) {
-            push @xrandr_args, '--primary' if $contact_status{$pin}{is_primary};
-            if ($contact_status{$pin}{resolution}) {
-                push @xrandr_args, '--mode', $contact_status{$pin}{resolution};
-            } else {
-                push @xrandr_args, '--auto';
-            }
-            if ($contact_status{$pin}{position}) {
-                $contact_status{$pin}{position} =~ /([-+]\d+)([-+]\d+)/;
-                push @xrandr_args, '--pos', "${1}x$2";
-            }
-        } else {
-            push @xrandr_args, '--off';
-        }
-    }
-
-    Notebook::Util::Command->new('xrandr', @xrandr_args)->run();
 }
 
 1;
