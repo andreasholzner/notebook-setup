@@ -74,4 +74,28 @@ subtest 'configure_displays' => sub {
     };
 };
 
+subtest 'new_current_config' => sub {
+    my %status = (
+        "DVI-I-1" => {
+            is_connected => 1,
+            is_primary => 0,
+            name => "SMBX2235",
+            position => "+1920+0",
+            resolution => "1920x1080",
+        },
+        "HDMI-0"  => { is_connected => 0 },
+        "LVDS-0"  => {
+            is_connected => 1,
+            is_primary => 1,
+            name => "intern",
+        },
+    );
+
+    my $new_config = new_current_config(%status);
+
+    my $displays_key = 'DVI-I-1;SMBX2235:LVDS-0;intern';
+    is $new_config->{current_displays_key} => $displays_key, 'displays_key';
+    is_deeply $new_config->{display_configs} => { $displays_key => \%status };
+};
+
 done_testing;

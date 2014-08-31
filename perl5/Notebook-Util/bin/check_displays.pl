@@ -47,17 +47,6 @@ if ($display_config->{current_displays_key} eq $current_displays_key) {
     handle_display_change($display_config, %display_status);
 }
 
-sub new_current_config {
-    my %status = @_;
-    my $current_key = get_attached_displays_key(%status);
-    return {
-        current_displays_key => $current_key,
-        display_configs => {
-            $current_key => { %status },
-        },
-    };
-}
-
 sub update_config {
     my ($config, %new_status) = @_;
 

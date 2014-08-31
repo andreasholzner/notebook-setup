@@ -10,7 +10,7 @@ use Notebook::Display::Information qw(get_attached_displays_key);
 use Notebook::Util::Command;
 
 use base qw(Exporter);
-our @EXPORT = qw(configure_displays);
+our @EXPORT = qw(configure_displays new_current_config);
 
 sub configure_displays {
     my %contact_status = @_;
@@ -36,5 +36,18 @@ sub configure_displays {
 
     Notebook::Util::Command->new('xrandr', @xrandr_args)->run();
 }
+
+sub new_current_config {
+    my %status = @_;
+    my $current_key = get_attached_displays_key(%status);
+    return {
+        current_displays_key => $current_key,
+        display_configs => {
+            $current_key => { %status },
+        },
+    };
+}
+
+
 
 1;
