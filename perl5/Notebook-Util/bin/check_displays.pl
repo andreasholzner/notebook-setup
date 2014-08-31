@@ -21,6 +21,14 @@ Log::Log4perl->easy_init({ level => $TRACE, file => '>>' . catfile($ENV{HOME}, '
 $Storable::canonical = 1;
 const my  $CONFIG_FILE => catfile($ENV{HOME}, '.display.config');
 
+# TODO: should look like
+# my $conf = Configurator->new($CONFIG_FILE);
+# $conf->obtain_info();
+# $conf->update();
+#
+# or Configurator->new($CONFIG_FILE)->new();
+
+
 my %display_status = get_xrandr_info;
 
 my $display_config = {};
@@ -68,9 +76,11 @@ sub handle_display_change {
         configure_displays(%{$config->{display_configs}{$current_key}});
         FvwmCommand::FvwmCommand('Restart');
         notify(summary => 'Display Konfiguration geändert', message => 'Bekannte Einstellung angewandt.', icon => 'display.png');
+        # TODO: update config
     } else {
         configure_displays(%new_status);
         FvwmCommand::FvwmCommand('Restart');
         notify(summary => 'Display Konfiguration geändert', message => 'Neue Einstellung geraten.', icon => 'display.png');
+        # TODO: add new configuration to config
     }
 }
