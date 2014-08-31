@@ -10,8 +10,7 @@ use List::Util 1.33 qw(first any);
 use Notebook::Util::Command;
 
 use base qw(Exporter);
-our @EXPORT = qw(get_xrandr_info get_attached_displays_key);
-our @EXPORT_OK = qw(analyze_status_line get_monitor_name get_edid);
+our @EXPORT_OK = qw(get_xrandr_info get_attached_displays_key analyze_status_line get_monitor_name get_edid);
 
 const our $INTERNAL_DISPLAY_NAME => 'intern';
 
@@ -28,7 +27,7 @@ sub get_attached_displays_key {
 }
 
 sub get_xrandr_info {
-    my %contact_status = ();
+    my $contact_status = {};
     my $current_pin;
     foreach (Notebook::Util::Command->new('xrandr --prop')->run_with_backticks()) {
         chomp;
@@ -37,20 +36,20 @@ sub get_xrandr_info {
             $current_pin = (split)[0];
         }
         if ($current_pin) {
-            push @{$contact_status{$current_pin}{raw}}, $_;
+            push @{$contact_status->{$current_pin}{raw}}, $_;
         }
     }
 
-    foreach (keys %contact_status) {
-        my $raw_data = $contact_status{$_}{raw};
-        analyze_status_line($contact_status{$_});
-        if ($contact_status{$_}{is_connected}) {
-            $contact_status{$_}{name} = get_monitor_name($raw_data);
+    foreach (keys %$contact_status) {
+        my $raw_data = $contact_status->{$_}{raw};
+        analyze_status_line($contact_status->{$_});
+        if ($contact_status->{$_}{is_connected}) {
+            $contact_status->{$_}{name} = get_monitor_name($raw_data);
         }
-        delete $contact_status{$_}{raw};
+        delete $contact_status->{$_}{raw};
     }
 
-    return %contact_status;
+    return $contact_status;
 }
 
 sub analyze_status_line {

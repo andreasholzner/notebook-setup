@@ -78,9 +78,9 @@ subtest 'get_xrandr_info' => sub {
     my $mock = Test::MockModule->new('Notebook::Util::Command');
     $mock->mock('run_with_backticks' => \&get_xrandr_output);
 
-    my %contact_status = get_xrandr_info();
+    my $contact_status = Notebook::Display::Information::get_xrandr_info();
 
-    is_deeply \%contact_status => {
+    is_deeply $contact_status => {
                                    'LVDS-0' => {
                                                 is_connected => 1,
                                                 is_primary => 1,
