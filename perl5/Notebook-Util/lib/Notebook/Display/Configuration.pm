@@ -6,6 +6,7 @@ use warnings;
 use Exporter;
 use Const::Fast;
 use Parse::EDID;
+use Notebook::Display::Information qw(get_attached_displays_key);
 use Notebook::Util::Command;
 
 use base qw(Exporter);
