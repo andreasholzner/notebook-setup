@@ -7,7 +7,7 @@ use local::lib;
 use File::Spec::Functions;
 use Getopt::Long;
 use Log::Log4perl qw(:easy);
-use Notebook::Util::Notify;
+use Notebook::Notify;
 
 Log::Log4perl->easy_init({ level => $INFO, file => '>>' . catfile($ENV{HOME}, '.xsession.log') });
 
