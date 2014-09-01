@@ -30,14 +30,14 @@ sub notify {
         find(sub {
                  $icon_file = $File::Find::name if $_ eq $config{icon};
              }, catdir($ENV{HOME}, $notify_conf->{icon_dir}));
-        push @notify_options, "--icon=$icon_file";
+        push @notify_options, "--icon=$icon_file" if $icon_file;
     }
     $config{timeout} //= 50;
     push @notify_options, "--expire-time=$config{timeout}";
     push @notify_options, shell_quote $config{summary};
     push @notify_options, shell_quote $config{message} if $config{message};
 
-    Notebook::Util::Command->new(_as_desktop_user($notify_conf->{desktop_user}, 'killall notify-osd'))->run;
+    Notebook::Util::Command->new(_as_desktop_user($notify_conf->{desktop_user}, 'killall -q notify-osd'))->run;
     Notebook::Util::Command->new(_as_desktop_user($notify_conf->{desktop_user}, join ' ', $notify_conf->{binary}, @notify_options))->run;
 }
 
