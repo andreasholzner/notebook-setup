@@ -73,7 +73,7 @@ sub find_config_state {
 sub prepare_tooltip {
     my ($template, $status) = @_;
 
-    $template =~ s/<<([^>]*)>>/$status->{$1}/g;
+    $template =~ s/<<([^>]*)>>/$status->{$1} or '?'/ge;
     return $template;
 }
 
