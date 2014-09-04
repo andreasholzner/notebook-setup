@@ -26,6 +26,8 @@ GetOptions(
 ) or die 'Invalid arguments';
 $repo_dir = $ARGV[0] if not $repo_dir and $ARGV[0];
 
+my @ignores = (qr/~$/, qr/^#[^#]+#$/);
+
 check_and_change_to_repo_dir($repo_dir);
 my @copy_dirs = find_top_level_dirs('copy');
 my @config_dirs = find_top_level_dirs('config');
@@ -93,18 +95,19 @@ sub process_config_dirs {
 sub copy_repo_file {
     my $target_dir = catdir($ENV{HOME}, $File::Find::dir);
     mkdir $target_dir unless -d $target_dir;
-    if (-f $_) {
-        my $target_file = catfile($target_dir, $_);
+	my $file_to_process = $_;
+    if (-f $file_to_process and not any { $file_to_process =~ $_ } @ignores) {
+        my $target_file = catfile($target_dir, $file_to_process);
         if (-e $target_file) {
-            if (compare($target_file, $_) == 1) { # files are different
+            if (compare($target_file, $file_to_process) == 1) { # files are different
                 if ($force) {
-                    copy_file($_, $target_file, $dry_run, \@filters);
+                    copy_file($file_to_process, $target_file, $dry_run, \@filters);
                 } else {
                     say "Skipping modified file: '$File::Find::name'. Use '--force' to override.";
                 }
             }
         } else {
-            copy_file($_, $target_file, $dry_run, \@filters);
+            copy_file($file_to_process, $target_file, $dry_run, \@filters);
         }
     }
 }
