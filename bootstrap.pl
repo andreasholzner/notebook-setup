@@ -12,15 +12,17 @@ use File::Find;
 use File::Spec::Functions;
 use Getopt::Long;
 use Sys::Hostname;
-use Data::Dump;
+use List::Util 1.33 qw(any);
 
 my $force;
 my $dry_run;
 my $repo_dir;
+my @filters = ();
 GetOptions(
     force => \$force,
     'dry-run' => \$dry_run,
     'source-directory|s=s' => \$repo_dir,
+	'filter=s' => \@filters,
 ) or die 'Invalid arguments';
 $repo_dir = $ARGV[0] if not $repo_dir and $ARGV[0];
 
@@ -96,25 +98,27 @@ sub copy_repo_file {
         if (-e $target_file) {
             if (compare($target_file, $_) == 1) { # files are different
                 if ($force) {
-                    copy_file($_, $target_file, $dry_run);
+                    copy_file($_, $target_file, $dry_run, \@filters);
                 } else {
                     say "Skipping modified file: '$File::Find::name'. Use '--force' to override.";
                 }
             }
         } else {
-            copy_file($_, $target_file, $dry_run);
+            copy_file($_, $target_file, $dry_run, \@filters);
         }
     }
 }
 
 sub copy_file {
-    my ($src, $target, $dry_run) = @_;
+    my ($src, $target, $dry_run, $filters) = @_;
 
-    if ($dry_run) {
-        say "Dry-run: Would Copy previously non-existing file '$target'";
-    } else {
-        copy($src, $target) or die "Failed to copy '$src' -> '$target': $!";
-    }
+	if (scalar @$filters == 0 or any { index($target, $_) != -1 } @$filters) {
+		if ($dry_run) {
+			say "Dry-run: Would Copy previously non-existing file '$target'";
+		} else {
+			copy($src, $target) or die "Failed to copy '$src' -> '$target': $!";
+		}
+	}
 }
 
 sub post_process {
