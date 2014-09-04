@@ -34,7 +34,7 @@ process_config_dirs(@config_dirs);
 # TODO
 #process_perl5_dirs(@perl5_dirs);
 
-post_process();
+post_process() unless $dry_run;
 
 
 sub check_and_change_to_repo_dir {
