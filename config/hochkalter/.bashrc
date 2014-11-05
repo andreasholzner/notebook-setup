@@ -38,12 +38,12 @@ if [ "$PS1" ]; then
     # enable programmable completion features (you don't need to enable
     # this, if it's already enabled in /etc/bash.bashrc).
     if [ -f /etc/bash_completion ]; then
-     . /etc/bash_completion
+        . /etc/bash_completion
     fi
 
-	if [ -f ~/.bash_aliases ]; then
-	    . ~/.bash_aliases
-	fi
+    if [ -f ~/.bash_aliases ]; then
+        . ~/.bash_aliases
+    fi
 fi
 
 
