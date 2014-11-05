@@ -18,8 +18,6 @@ if [ "$PS1" ]; then
     alias la='ls -A'
     alias l='ls -CF'
 
-    function c () { cd `cdto.pl $1`; }
-
     # set a fancy prompt
     PS1='\[\033[01;34m\]\u\[\033[00m\]@\[\033[01;32m\]\h\[\033[00m\]:\[\033[01;31m\]\w\[\033[00m\]\$ '
     # If this is an xterm set the title to user@host:dir
@@ -46,18 +44,8 @@ if [ "$PS1" ]; then
     fi
 fi
 
-
-# This line was appended by KDE
-# Make sure our customised gtkrc file is loaded.
-export GTK2_RC_FILES=$HOME/.gtkrc-2.0
-
-
-## Perl local::lib
-export PERL_LOCAL_LIB_ROOT="$PERL_LOCAL_LIB_ROOT:/home/andreas/perl5";
-export PERL_MB_OPT="--install_base /home/andreas/perl5";
-export PERL_MM_OPT="INSTALL_BASE=/home/andreas/perl5";
-export PERL5LIB="/home/andreas/perl5/lib/perl5:$PERL5LIB";
-export PATH="/home/andreas/perl5/bin:$PATH";
-
-# perl env variable
-export PERL5LIB=$HOME/Projekte/Perl/.perllib:$HOME/Projekte/Perl/perllib:$PERL5LIB
+for file in ~/.bashrc.d/*; do
+    if [ -x "$file" ]; then
+        . $file
+    fi
+done
