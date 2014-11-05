@@ -18,8 +18,6 @@ if [ "$PS1" ]; then
     alias la='ls -A'
     alias l='ls -CF'
 
-	alias vuescan='/home/andreas/bin/vuescan/vuescan'
-
     function c () { cd `cdto.pl $1`; }
 
     # set a fancy prompt
@@ -42,6 +40,10 @@ if [ "$PS1" ]; then
     if [ -f /etc/bash_completion ]; then
      . /etc/bash_completion
     fi
+
+	if [ -f ~/.bash_aliases ]; then
+	    . ~/.bash_aliases
+	fi
 fi
 
 
