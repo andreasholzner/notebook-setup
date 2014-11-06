@@ -1,54 +1,3 @@
-!# XOSView Section
-xosview*loadGraph: false
-xosview*cpuGraph: false
-xosview*memGraph: false
-xosview*swapGraph: false
-xosview*pageGraph: false
-xosview*netGraph: false
-xosview*diskGraph: false
-
-xosview*meterLabelColor: black
-xosview*usedLabelColor: black
-xosview*font: 6x9
-!xosview*background: white
-xosview*transparent: True
-xosview*foreground: black
-
-xosview*loadIdleColor: green
-xosview*loadProcColor: blue
-xosview*loadWarnColor: red
-
-xosview*cpuUserColor: blue
-xosview*cpuNiceColor: yellow
-xosview*cpuSystemColor: red
-xosview*cpuFreeColor: green
-xosview*cpuInterruptColor: black
-
-xosview*memUsedColor: blue
-xosview*memSharedColor: yellow
-xosview*memBufferColor: red
-xosview*memCacheColor: orange
-xosview*memFreeColor: green
-
-xosview*swapUsedColor: blue
-xosview*swapFreeColor: green
-
-xosview*net: true
-xosview*netBandwidth: 12500000
-xosview*netInColor: blue
-xosview*netOutColor: red
-xosview*netBackground: green
-
-xosview*diskUsedColor: black
-xosview*diskIdleColor: green
-xosview*diskBandwidth: 35000000
-xosview*diskWriteColor: red
-xosview*diskReadColor: blue
-
-xosview*pageInColor: blue
-xosview*pageOutColor: red
-xosview*pageIdleColor: green
-
 !# XFig Section
 Fig*inches: false
 
@@ -56,7 +5,6 @@ Fig*inches: false
 Emacs*font:6x13
 Emacs*geometry: 140x60
 Emacs*iconName: Emacs
-
 
 ! Fvwm run dialog
 fvwm-run-dialog*keysym.0xFF0D: & \n exit\n
