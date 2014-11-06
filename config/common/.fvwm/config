@@ -9,7 +9,7 @@
 # search  for  images  (both  monochrome  and pixmap).  To find an
 # image given by a relative pathname, fvwm looks into each  direc-
 # tory listed in turn, and uses the first file found.
-ImagePath $HOME/.fvwm/icons/:/usr/share/pixmaps/:/usr/share/icons/
+ImagePath $HOME/share/icons/fvwm/:/usr/share/pixmaps/:/usr/share/icons/
 
 #-----------------------------------------------------------------------------#
 #
