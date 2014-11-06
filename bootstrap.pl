@@ -12,7 +12,7 @@ use File::Find;
 use File::Spec::Functions;
 use Getopt::Long;
 use Sys::Hostname;
-use List::Util 1.33 qw(any);
+use List::Util 1.33 qw(any all);
 
 my $force;
 my $dry_run;
@@ -95,33 +95,39 @@ sub process_config_dirs {
 sub copy_repo_file {
     my $target_dir = catdir($ENV{HOME}, $File::Find::dir);
     mkdir $target_dir unless -d $target_dir;
-	my $file_to_process = $_;
+    my $file_to_process = $_;
     if (-f $file_to_process and not any { $file_to_process =~ $_ } @ignores) {
         my $target_file = catfile($target_dir, $file_to_process);
-        if (-e $target_file) {
-            if (compare($target_file, $file_to_process) == 1) { # files are different
-                if ($force) {
-                    copy_file($file_to_process, $target_file, $dry_run, \@filters);
-                } else {
-                    say "Skipping modified file: '$File::Find::name'. Use '--force' to override.";
+        if (not is_file_excluded($target_file, \@filters)) {
+            if (-e $target_file) {
+                if (compare($target_file, $file_to_process) == 1) { # files are different
+                    if ($force) {
+                        copy_file($file_to_process, $target_file, $dry_run);
+                    } else {
+                        say "Skipping modified file: '$File::Find::name'. Use '--force' to override.";
+                    }
                 }
+            } else {
+                copy_file($file_to_process, $target_file, $dry_run);
             }
-        } else {
-            copy_file($file_to_process, $target_file, $dry_run, \@filters);
         }
     }
 }
 
-sub copy_file {
-    my ($src, $target, $dry_run, $filters) = @_;
+sub is_file_excluded {
+    my ($file, $filters) = @_;
 
-	if (scalar @$filters == 0 or any { index($target, $_) != -1 } @$filters) {
-		if ($dry_run) {
-			say "Dry-run: Would Copy previously non-existing file '$target'";
-		} else {
-			copy($src, $target) or die "Failed to copy '$src' -> '$target': $!";
-		}
-	}
+    scalar @$filters > 0 and all { index($file, $_) == -1 } @$filters;
+}
+
+sub copy_file {
+    my ($src, $target, $dry_run) = @_;
+
+    if ($dry_run) {
+        say "Dry-run: Would Copy previously non-existing file '$target'";
+    } else {
+        copy($src, $target) or die "Failed to copy '$src' -> '$target': $!";
+    }
 }
 
 sub post_process {
