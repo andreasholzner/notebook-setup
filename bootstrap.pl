@@ -126,7 +126,9 @@ sub copy_file {
     if ($dry_run) {
         say "Dry-run: Would Copy previously non-existing file '$target'";
     } else {
+		my $mode = (stat $src)[2] & 07777;
         copy($src, $target) or die "Failed to copy '$src' -> '$target': $!";
+		chmod $mode, $target;
     }
 }
 
