@@ -9,7 +9,7 @@ use Cwd;
 use File::Compare qw(compare compare_text);
 use File::Copy;
 use File::Find;
-use File::Spec::Functions;
+use File::Spec::Functions qw(catfile catdir rel2abs);
 use Getopt::Long;
 use Sys::Hostname;
 use List::Util 1.33 qw(any all);
@@ -18,15 +18,18 @@ my $force;
 my $dry_run;
 my $repo_dir;
 my @filters = ();
+my $diff_mode;
 GetOptions(
     force => \$force,
     'dry-run' => \$dry_run,
     'source-directory|s=s' => \$repo_dir,
-	'filter=s' => \@filters,
+    'filter=s' => \@filters,
+    'show-diffs' => \$diff_mode,
 ) or die 'Invalid arguments';
 $repo_dir = $ARGV[0] if not $repo_dir and $ARGV[0];
 
 my @ignores = (qr/~$/, qr/^#[^#]+#$/);
+my @diffs = ();
 
 check_and_change_to_repo_dir($repo_dir);
 my @copy_dirs = find_top_level_dirs('copy');
@@ -38,8 +41,8 @@ process_config_dirs(@config_dirs);
 # TODO
 #process_perl5_dirs(@perl5_dirs);
 
-post_process() unless $dry_run;
-
+post_process() unless $dry_run or $diff_mode;
+view_diffs(@diffs) if $diff_mode;
 
 sub check_and_change_to_repo_dir {
     my $repo_dir = shift;
@@ -101,14 +104,20 @@ sub copy_repo_file {
         if (not is_file_excluded($target_file, \@filters)) {
             if (-e $target_file) {
                 if (compare($target_file, $file_to_process) == 1) { # files are different
-                    if ($force) {
+                    if ($diff_mode) {
+                        push @diffs, { source => rel2abs($file_to_process), target => $target_file };
+                    } elsif ($force) {
                         copy_file($file_to_process, $target_file, $dry_run);
                     } else {
                         say "Skipping modified file: '$File::Find::name'. Use '--force' to override.";
                     }
                 }
             } else {
-                copy_file($file_to_process, $target_file, $dry_run);
+                if ($diff_mode) {
+                    push @diffs, { source => rel2abs($file_to_process), target => '/dev/null' };
+                } else {
+                    copy_file($file_to_process, $target_file, $dry_run);
+                }
             }
         }
     }
@@ -126,12 +135,23 @@ sub copy_file {
     if ($dry_run) {
         say "Dry-run: Would Copy previously non-existing file '$target'";
     } else {
-		my $mode = (stat $src)[2] & 07777;
+        my $mode = (stat $src)[2] & 07777;
         copy($src, $target) or die "Failed to copy '$src' -> '$target': $!";
-		chmod $mode, $target;
+        chmod $mode, $target;
     }
 }
 
 sub post_process {
     system 'emacs --no-window-system --no-splash --no-desktop --funcall emc-merge-config-files --kill';
+}
+
+sub view_diffs {
+    my @diffs = @_;
+
+    my @ediff_calls = map {
+        my ($a, $b) = @$_{qw(source target)};
+        "--eval '(ediff-files \"$a\" \"$b\")'";
+    } @diffs;
+
+    system 'emacsclient --create-frame ' . join ' ', @ediff_calls;
 }
