@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+. $HOME/.bashrc
 
 export LANG=de_DE.UTF-8
 
