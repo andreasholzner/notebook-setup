@@ -1,0 +1,12 @@
+# # Perl6 - rakudo
+# export PATH="/home/holznera/Projekte/Perl/perl6/rakudo-star-2011.04/install/bin:$PATH"
+# # Java
+# export JAVA_HOME=/usr/lib/jvm/java-6-sun
+# # Maven
+# export M2_HOME=$HOME/bin/apache-maven-2.2.1
+# export MAVEN_HOME=$HOME/bin/apache-maven-2.2.1
+# export M2=$HOME/bin/apache-maven-2.2.1/bin
+# export MAVEN_OPTS="-Xms512m -Xmx2048m -XX:PermSize=128m -XX:MaxPermSize=256m"
+# export PATH=$HOME/bin/apache-maven-2.2.1/bin:$PATH
+# # Gradle
+# export PATH=$PATH:$HOME/bin/gradle-1.8/bin
