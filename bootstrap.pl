@@ -5,6 +5,7 @@ use warnings;
 use feature qw(say);
 use experimental qw(switch);
 
+use FindBin;
 use Cwd;
 use File::Compare qw(compare compare_text);
 use File::Copy;
@@ -16,22 +17,19 @@ use List::Util 1.33 qw(any all);
 
 my $force;
 my $dry_run;
-my $repo_dir;
 my @filters = ();
 my $diff_mode;
 GetOptions(
     force => \$force,
     'dry-run' => \$dry_run,
-    'source-directory|s=s' => \$repo_dir,
     'filter=s' => \@filters,
     'show-diffs' => \$diff_mode,
 ) or die 'Invalid arguments';
-$repo_dir = $ARGV[0] if not $repo_dir and $ARGV[0];
 
 my @ignores = (qr/~$/, qr/^#[^#]+#$/);
 my @diffs = ();
 
-check_and_change_to_repo_dir($repo_dir);
+chdir $FindBin::Bin;
 my @copy_dirs = find_top_level_dirs('copy');
 my @config_dirs = find_top_level_dirs('config');
 my @perl5_dirs = find_top_level_dirs('perl5');
@@ -43,16 +41,6 @@ process_config_dirs(@config_dirs);
 
 post_process() unless $dry_run or $diff_mode;
 view_diffs(@diffs) if @diffs;
-
-sub check_and_change_to_repo_dir {
-    my $repo_dir = shift;
-
-    $repo_dir or die "Missing argument 'source-directory'!";
-    -d $repo_dir or die "Argument is not an existing directory: '$repo_dir'";
-    chdir $repo_dir;
-    system 'git status > /dev/null';
-    die "Directory '$repo_dir' is not a git repository" if $?;
-}
 
 sub find_top_level_dirs {
     my $type = shift;
