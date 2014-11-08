@@ -42,7 +42,7 @@ process_config_dirs(@config_dirs);
 #process_perl5_dirs(@perl5_dirs);
 
 post_process() unless $dry_run or $diff_mode;
-view_diffs(@diffs) if $diff_mode;
+view_diffs(@diffs) if @diffs;
 
 sub check_and_change_to_repo_dir {
     my $repo_dir = shift;
