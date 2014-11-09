@@ -20,7 +20,7 @@ Einfach das Skript `bootstrap.pl` aufrufen,
 
 - `--dry-run`: Listet nur alle Operationen auf ohne sie tatsächlich durchzuführen.
 - `--force`: Nur damit werden lokal geänderte Dateien mit dem Repositoryinhalt überschrieben.
-- `--filter <FILTER_STRING>`: Nur Dateien, die <FILTER_STRING> enthalten, werden verarbeitet.
+- `--filter <FILTER_STRING>`: Nur Dateien, die `<FILTER_STRING>` enthalten, werden verarbeitet.
 - `--show-diffs`: Zeigt alle Unterschiede zwischen den Dateien an, die kopiert werden würden.
 
 ### Beschreibung ###
