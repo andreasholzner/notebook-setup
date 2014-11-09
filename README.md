@@ -13,14 +13,15 @@ notebook-setup
 
 Einfach das Skript `bootstrap.pl` aufrufen,
 
-    bootstrap.pl --source-directory=<DIR>
+    bootstrap.pl
 
-wobei `<DIR>` die Arbeitskopie des notebook-setup Repositories sein muss.
 
 ### Optionen ###
 
-- `--dry-run`: Listet nur alle Operationen auf ohne sie tatsächlich durchzuführen
-- `--force`: Nur damit werden lokal geänderte Dateien mit dem Repositoryinhalt überschrieben
+- `--dry-run`: Listet nur alle Operationen auf ohne sie tatsächlich durchzuführen.
+- `--force`: Nur damit werden lokal geänderte Dateien mit dem Repositoryinhalt überschrieben.
+- `--filter <FILTER_STRING>`: Nur Dateien, die <FILTER_STRING> enthalten, werden verarbeitet.
+- `--show-diffs`: Zeigt alle Unterschiede zwischen den Dateien an, die kopiert werden würden.
 
 ### Beschreibung ###
 
