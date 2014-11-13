@@ -33,12 +33,12 @@ top_name_width 18
 TEXT
 ${font Bitstream Vera Sans:size=12}${color0}Kernel: ${color}$kernel
 ${color0}CPU: $color$cpu%
-${cpugraph 40,290 dda0dd ee2c2c -t}
+${cpugraph 40,300 dda0dd ee2c2c -t}
 ${color0}RAM:$color $mem/$memmax
 ${color0}Swap:$color $swap/$swapmax
-${memgraph 40,290 228b22 ffd700 -t}
+${memgraph 40,300 228b22 ffd700 -t}
 ${color0}Filesystem: $color${fs_used /}/${fs_size /}
-${color0}Net: ${goto 60}${color1}up:$color${alignr 110}${upspeedf eth0}k/s${goto 180}${color4}down:$color${alignr 0}${downspeedf eth0}k/s
+${color0}Net: ${goto 60}${color1}up:$color${alignr 130}${upspeedf eth0}k/s${goto 180}${color4}down:$color${alignr 0}${downspeedf eth0}k/s
 
 ${font Bitstream Vera Sans Mono:size=10}
 Process (by cpu)${alignr 38}PID${alignr 20}%CPU${alignr 0}%MEM
