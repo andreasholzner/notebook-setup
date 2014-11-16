@@ -1,2 +1,0 @@
-# perl env variable
-export PERL5LIB=$HOME/Projekte/Perl/.perllib:$HOME/Projekte/Perl/perllib:$PERL5LIB
