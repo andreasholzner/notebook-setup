@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use local::lib;
 
 use Const::Fast;
 use Gtk3 -init;
@@ -48,7 +47,10 @@ sub update {
 
     if ($new_status ne $$status_ref) {
         INFO "BatteryMonitor status change: '$$status_ref' => '$new_status'";
-        $config->{action} and $config->{action}->($battery);
+        if ($config->{action}) {
+            eval { $config->{action}->($battery); };
+            ERROR "eval of action failed: $@" if $@;
+        }
         $$status_ref = $new_status;
     }
     1;
