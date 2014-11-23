@@ -19,6 +19,7 @@ sub new {
 
     bless {
         config => $config_file ? Config::Auto->new(source => $config_file)->parse : {},
+        user => $pam_user,
     }, $class;
 }
 
@@ -38,8 +39,9 @@ sub run {
 sub command {
     my ($self, $cmd) = @_;
 
-    syslog LOG_DEBUG, 'calling the command: "%s"', $cmd;
-    system $cmd;
+    my $user = $self->{user};
+    syslog LOG_DEBUG, 'calling the command: "%s" as user "%s"', $cmd, $user;
+    system "sudo -iu $user $cmd";
 }
 
 1;
