@@ -6,7 +6,7 @@ notebook-setup
 -   `config`: Konfigurationsdateien
     - `common`: für alle Rechner
     - `$hostname`: spezifisch für Rechner mit `hostname = $hostname`
--   `perl5`: Perl5 Module (müssen aktuell eigenständig installiert werden)
+-   `perl5`: Perl5 Module
 -   `*`: Alle anderen Verzeichnisse haben keine spezielle Bedeutung und werden einfach kopiert.
 
 ## Benutzung ##
@@ -32,7 +32,11 @@ Einfach das Skript `bootstrap.pl` aufrufen,
 
 ## Perl5 ##
 
-Alle Verzeichnisse unter `perl5` enthalten Perl5-Pakete, die mit `Dist::Zilla` gebaut werden.
+Alle Verzeichnisse unter `perl5` enthalten Perl5-Pakete, die mit `Dist::Zilla` gebaut werden. `bootstrap.pl` installiert automatisch alle Module, die noch nicht oder in einer veralteten Version im System installiert sind. Der Eintrag
+
+    system_wide = 1
+
+in der `dist.ini` sorgt für eine systemweite Installation.
 
 ### Paketstruktur ###
 
@@ -66,10 +70,15 @@ Alle folgenden Befehle werden innerhalb des betroffenen Pakets ausgeführt.
 
 Ein so gebautes Paket lässt sich einfach mit `cpanm` installieren
 
-    cpanm My-Packet-$VERSION.tag.gz
+    cpanm My-Packet-$VERSION.tar.gz
 
 und mit
 
     cpanm --uninstall My::Packet
 
 wieder deinstallieren.
+
+Für eine systemweite Installation:
+
+    PERL_MM_OPT= PERL_MB_OPT= cpanm --sudo My-Packet-$VERSION.tar.gz
+

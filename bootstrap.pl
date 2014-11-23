@@ -13,6 +13,7 @@ use File::Find;
 use File::Spec::Functions qw(catfile catdir rel2abs);
 use Getopt::Long;
 use Sys::Hostname;
+use Config::IniFiles;
 use List::Util 1.33 qw(any all);
 
 my $force;
@@ -36,8 +37,7 @@ my @perl5_dirs = find_top_level_dirs('perl5');
 
 process_copy_dirs(@copy_dirs);
 process_config_dirs(@config_dirs);
-# TODO
-#process_perl5_dirs(@perl5_dirs);
+process_perl5_dirs(@perl5_dirs);
 
 post_process() unless $dry_run or $diff_mode;
 view_diffs(@diffs) if @diffs;
@@ -109,6 +109,69 @@ sub copy_repo_file {
             }
         }
     }
+}
+
+sub process_perl5_dirs {
+    my @dirs_to_process = @_;
+
+    my $working_dir = cwd();
+    foreach my $dir (@dirs_to_process) {
+        if (not is_file_excluded($dir, \@filters)) {
+            chdir $dir;
+            my $module_config = Config::IniFiles->new(-file => 'dist.ini', -fallback => 'general');
+            (my $module = $module_config->val('general', 'name')) =~ s/-/::/g;
+            my $installed_version = get_module_version($module);
+            if (not defined $installed_version or $installed_version < $module_config->val('general', 'version')) {
+                build_perl_module($module, $module_config, $dry_run);
+            }
+            chdir $working_dir;
+        }
+    }
+}
+
+sub get_module_version {
+    my $module = shift;
+
+    my $version;
+    eval "require $module";
+    unless ($@) {
+        no strict 'refs';
+        $version = ${$module . '::VERSION'};
+    }
+    return $version;
+}
+
+sub build_perl_module {
+    my ($module, $config, $dry_run) = @_;
+
+    if ($dry_run) {
+        say "Dry-run: Would install perl module '$module'";
+    } else {
+        say "Processing perl module '$module'...";
+        system "dzil clean >/dev/null";
+        if (system("dzil test >/dev/null") == 0) {
+            system "dzil build >/dev/null";
+            my $archive = $config->val('general', 'name') . '-' . $config->val('general', 'version') . '.tar.gz';
+            if (-e $archive) {
+                install_perl_module($archive, $config);
+            } else {
+                say "Failed to build '$module'.";
+            }
+        } else {
+            say "$module fails its tests. Will not install.";
+        }
+    }
+}
+
+sub install_perl_module {
+    my ($archive, $config) = @_;
+
+    if ($config->val('general', 'system_wide')) {
+        system "PERL_MM_OPT= PERL_MB_OPT= cpanm --sudo $archive";
+    } else {
+        system "cpanm $archive";
+    }
+    system "dzil clean >/dev/null";
 }
 
 sub is_file_excluded {
