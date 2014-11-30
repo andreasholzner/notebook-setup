@@ -3,9 +3,10 @@
 . $HOME/.bashrc
 
 export LANG=de_DE.UTF-8
-
-emacs --daemon &
-
 fvwm
 
-emacsclient -e '(kill-emacs)'
+if [ `ps aux | grep 'emacs --daemon' | grep -v grep | wc -l` != "0" ]
+then
+    echo "Stopping emacs daemon" >> $HOME/.xsession.log
+    emacsclient -e '(kill-emacs)'
+fi
