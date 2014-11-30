@@ -2,9 +2,8 @@
 
 use strict;
 use warnings;
+use feature qw(say);
 
-use lib qw(/usr/lib/fvwm/2.6.5);
-use FvwmCommand;
 use List::Util qw(first);
 use File::Spec::Functions;
 use Log::Log4perl qw(:easy);
@@ -22,6 +21,13 @@ foreach my $key (@export_keys) {
         my $value = (split /=/, $line)[1];
         chomp $value;
         DEBUG "setting environment: $key => $value";
-        FvwmCommand::FvwmCommand('SetEnv', $key, $value);
+        say "SetEnv $key $value";
     }
 }
+
+__END__
+
+example output of gnome-keyring-daemon:
+GNOME_KEYRING_CONTROL=/run/user/1000/keyring-NUiyVd
+SSH_AUTH_SOCK=/run/user/1000/keyring-NUiyVd/ssh
+GPG_AGENT_INFO=/run/user/1000/keyring-NUiyVd/gpg:0:1
