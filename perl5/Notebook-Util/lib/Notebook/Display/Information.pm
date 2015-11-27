@@ -1,32 +1,32 @@
 package Notebook::Display::Information;
 
-use strict;
-use warnings;
+use Moose;
+use namespace::autoclean;
 
-use Exporter;
 use Const::Fast;
 use Parse::EDID;
 use List::Util 1.33 qw(first any);
 use Notebook::Util::Command;
 
-use base qw(Exporter);
-our @EXPORT_OK = qw(get_xrandr_info get_attached_displays_key analyze_status_line get_monitor_name get_edid);
-
 const our $INTERNAL_DISPLAY_NAME => 'intern';
 
-sub get_attached_displays_key {
-    my %contact_status = @_;
-    my @display_keys = ();
-    foreach my $pin (sort keys %contact_status) {
-        no warnings 'uninitialized';
-        if ($contact_status{$pin}{is_connected}) {
-            push @display_keys, join ';', $pin, $contact_status{$pin}{name};
-        }
-    }
-    return join ':', @display_keys;
-}
+has contact_status => (
+    is => 'ro',
+    writer => '_set_contact_status',
+    isa => 'HashRef',
+    init_arg => undef,
+);
 
-sub get_xrandr_info {
+has display_key => (
+    is => 'ro',
+    writer => '_set_display_key',
+    isa => 'Str',
+    init_arg => undef,
+);
+
+sub obtain_info_from_xrandr {
+    my $self = shift;
+
     my $contact_status = {};
     my $current_pin;
     foreach (Notebook::Util::Command->new('xrandr --prop')->run_with_backticks()) {
@@ -42,18 +42,34 @@ sub get_xrandr_info {
 
     foreach (keys %$contact_status) {
         my $raw_data = $contact_status->{$_}{raw};
-        analyze_status_line($contact_status->{$_});
+        $self->_analyze_status_line($contact_status->{$_});
         if ($contact_status->{$_}{is_connected}) {
-            $contact_status->{$_}{name} = get_monitor_name($raw_data);
+            $contact_status->{$_}{name} = $self->_get_monitor_name($raw_data);
         }
         delete $contact_status->{$_}{raw};
     }
 
-    return $contact_status;
+    $self->_set_contact_status($contact_status);
+
+    $self->_set_display_key($self->_determine_display_key)
 }
 
-sub analyze_status_line {
-    my $contact_data = shift;
+sub _determine_display_key {
+    my $self = shift;
+
+    my @display_keys = ();
+    foreach my $pin (sort keys %{$self->contact_status}) {
+        no warnings 'uninitialized';
+        if ($self->contact_status->{$pin}{is_connected}) {
+            push @display_keys, join ';', $pin, $self->contact_status->{$pin}{name};
+        }
+    }
+    return join ':', @display_keys;
+}
+
+sub _analyze_status_line {
+    my ($self, $contact_data) = @_;
+
     my @infos = split ' ', $contact_data->{raw}[0];
     $contact_data->{is_connected} = $infos[1] eq 'connected' ? 1 : 0;
     if ($contact_data->{is_connected}) {
@@ -66,15 +82,17 @@ sub analyze_status_line {
     }
 }
 
-sub get_monitor_name {
-    my $raw_data = shift;
-    my $edid = get_edid($raw_data);
+sub _get_monitor_name {
+    my ($self, $raw_data) = @_;
 
-    $edid->{monitor_name} or guess_internal_display($raw_data);
+    my $edid = $self->_get_edid($raw_data);
+
+    $edid->{monitor_name} or $self->_guess_internal_display($raw_data);
 }
 
-sub get_edid {
-    my $raw_lines = shift;
+sub _get_edid {
+    my ($self, $raw_lines) = @_;
+
     my $source = join "\n", @$raw_lines;
 
     local $SIG{__WARN__} = sub {};
@@ -83,8 +101,8 @@ sub get_edid {
     }
 }
 
-sub guess_internal_display {
-    my $raw_data = shift;
+sub _guess_internal_display {
+    my ($self, $raw_data) = @_;
 
     my $connector_type_line = first { /ConnectorType:/ } @$raw_data;
     if ($connector_type_line) {
@@ -96,4 +114,5 @@ sub guess_internal_display {
     return $has_backlight ? $INTERNAL_DISPLAY_NAME : undef;
 }
 
+__PACKAGE__->meta->make_immutable;
 1;
