@@ -19,7 +19,7 @@ use Data::Dump qw(dump);
 
 Log::Log4perl->easy_init({ level => $TRACE, file => '>>' . catfile($ENV{HOME}, '.xsession.log') });
 $Storable::canonical = 1;
-const my  $CONFIG_FILE => catfile($ENV{HOME}, '.display.config');
+const my  $CONFIG_FILE => catfile($ENV{HOME}, '.config', '.display.config');
 
 my %display_status = get_xrandr_info;
 
