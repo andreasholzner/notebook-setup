@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 
-use local::lib;
 use Test::More;
 use Test::MockModule;
 use Notebook::Display::Configuration;

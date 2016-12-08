@@ -5,7 +5,7 @@ use Test::More;
 use Test::MockModule;
 use Notebook::Display::Information;
 
-subtest '_get_monitor_name' => sub {
+subtest 'get_monitor_name' => sub {
     my $edid = <<'ENDL';
     EDID: 
         00ffffffffffff004c2d000735303030
@@ -26,37 +26,33 @@ subtest '_get_monitor_name' => sub {
         00000000000000000000000000000099
 ENDL
 
-    my $information = Notebook::Display::Information->new;
-
-    is $information->_get_monitor_name([ split /\n/, $edid ]) => 'SMBX2235';
+    is Notebook::Display::Information::get_monitor_name([ split /\n/, $edid ]) => 'SMBX2235';
 };
 
-subtest '_determine_display_key' => sub {
-    my $contact_status = {
-        'HDMI-0' => { is_connected => 0 },
-        'LVDS-0' => {
-            is_connected => 1,
-            name => undef,
-        },
-        VGA => {
-            is_connected => 1,
-            name => 'SMBX2235',
-        },
-    };
-    my $information = Notebook::Display::Information->new;
-    $information->_set_contact_status($contact_status);
+subtest 'get_attached_displays_key' => sub {
+    my %contact_status = (
+                          'HDMI-0' => { is_connected => 0 },
+                          'LVDS-0' => {
+                                       is_connected => 1,
+                                       name => undef,
+                                      },
+                          VGA => {
+                                  is_connected => 1,
+                                  name => 'SMBX2235',
+                                 },
+                         );
 
-    is $information->_determine_display_key => 'LVDS-0;:VGA;SMBX2235';
+    is Notebook::Display::Information::get_attached_displays_key(%contact_status)
+        => 'LVDS-0;:VGA;SMBX2235';
 };
 
-subtest '_analyze_status_line' => sub {
+subtest 'analyze_status_line' => sub {
     subtest 'disconnected display' => sub {
         my $data = {
-            raw => [ 'HDMI-0 disconnected (normal left inverted right x axis y axis)' ],
-        };
-        my $information = Notebook::Display::Information->new;
+                    raw => [ 'HDMI-0 disconnected (normal left inverted right x axis y axis)' ],
+                   };
 
-        $information->_analyze_status_line($data);
+        Notebook::Display::Information::analyze_status_line($data);
 
         is scalar keys %$data => 2;
         is $data->{is_connected} => 0;
@@ -64,11 +60,10 @@ subtest '_analyze_status_line' => sub {
 
     subtest 'connected display' => sub {
         my $data = {
-            raw => [ 'DVI-I-1 connected 1920x1080+1920+0 (normal left inverted right x axis y axis) 477mm x 268mm' ],
-        };
-        my $information = Notebook::Display::Information->new;
+                    raw => [ 'DVI-I-1 connected 1920x1080+1920+0 (normal left inverted right x axis y axis) 477mm x 268mm' ],
+                   };
 
-        $information->_analyze_status_line($data);
+        Notebook::Display::Information::analyze_status_line($data);
 
         is scalar keys %$data => 5;
         is $data->{is_connected} => 1;
@@ -82,29 +77,27 @@ subtest 'get_xrandr_info' => sub {
     my $mock = Test::MockModule->new('Notebook::Util::Command');
     $mock->mock('run_with_backticks' => \&get_xrandr_output);
 
-    my $information = Notebook::Display::Information->new;
+    my $contact_status = Notebook::Display::Information::get_xrandr_info();
 
-    $information->obtain_info_from_xrandr;
-
-    is_deeply $information->contact_status => {
-        'LVDS-0' => {
-            is_connected => 1,
-            is_primary => 1,
-            name => 'intern',
-            resolution => '1920x1080',
-            position => '+0+0',
-        },
-        'DVI-I-1' => {
-            is_connected => 1,
-            is_primary => 0,
-            name => 'SMBX2235',
-            resolution => '1920x1080',
-            position => '+1920+0',
-        },
-        'DVI-I-0' => { is_connected => 0 },
-        'HDMI-0' => { is_connected => 0 },
-        'DP-0' => { is_connected => 0 },
-    }, 'display information';
+    is_deeply $contact_status => {
+                                   'LVDS-0' => {
+                                                is_connected => 1,
+                                                is_primary => 1,
+                                                name => 'intern',
+                                                resolution => '1920x1080',
+                                                position => '+0+0',
+                                               },
+                                   'DVI-I-1' => {
+                                                 is_connected => 1,
+                                                 is_primary => 0,
+                                                 name => 'SMBX2235',
+                                                 resolution => '1920x1080',
+                                                 position => '+1920+0',
+                                               },
+                                   'DVI-I-0' => { is_connected => 0 },
+                                   'HDMI-0' => { is_connected => 0 },
+                                   'DP-0' => { is_connected => 0 },
+                                  }, 'display information';
 };
 
 done_testing;
