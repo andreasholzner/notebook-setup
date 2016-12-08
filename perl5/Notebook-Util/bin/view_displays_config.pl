@@ -11,7 +11,7 @@ use Const::Fast;
 use Data::Dump qw(dump);
 
 $Storable::canonical = 1;
-const my  $CONFIG_FILE => catfile($ENV{HOME}, '.display.config');
+const my  $CONFIG_FILE => catfile($ENV{HOME}, '.config', 'display.config');
 
 my $display_config = retrieve($CONFIG_FILE);
 
