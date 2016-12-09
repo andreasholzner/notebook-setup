@@ -2,15 +2,14 @@
 
 use strict;
 use warnings;
-use local::lib;
 use lib qw(/usr/lib/fvwm/2.6.5);
 use feature 'say';
 
 use Log::Log4perl qw(:easy);
 use Storable qw(store retrieve freeze);
 use File::Spec::Functions;
-use Notebook::Display::Information;
-use Notebook::Display::Configuration;
+use Notebook::Display::Information qw(get_xrandr_info get_attached_displays_key);
+use Notebook::Display::Configuration qw(new_current_config configure_displays);
 use Notebook::Notify;
 use FvwmCommand;
 use Const::Fast;
@@ -21,7 +20,7 @@ Log::Log4perl->easy_init({ level => $TRACE, file => '>>' . catfile($ENV{HOME}, '
 $Storable::canonical = 1;
 const my  $CONFIG_FILE => catfile($ENV{HOME}, '.config', 'display.config');
 
-my %display_status = get_xrandr_info;
+my %display_status = %{get_xrandr_info()};
 
 my $display_config = {};
 $display_config = retrieve($CONFIG_FILE) if -e $CONFIG_FILE;
@@ -29,6 +28,7 @@ $display_config = retrieve($CONFIG_FILE) if -e $CONFIG_FILE;
 unless (%$display_config) {
     DEBUG 'No display config found in config file: ' . $CONFIG_FILE;
     my $new_config = new_current_config(%display_status);
+    TRACE 'Determined config: ' . dump($new_config);
     store($new_config, $CONFIG_FILE);
     exit 0;
 }
@@ -38,6 +38,7 @@ TRACE "Config file content: " . dump($display_config);
 
 if ($display_config->{current_displays_key} eq $current_displays_key) {
     DEBUG 'Attached displays have not changed.';
+    TRACE 'Comparing A: ' . dump(\%display_status) . "\nwith B: " . dump($display_config->{display_configs}{$current_displays_key});
     my $frozen_status = freeze(\%display_status);
     my $frozen_status_from_file = freeze($display_config->{display_configs}{$current_displays_key});
     if ($frozen_status ne $frozen_status_from_file) {
