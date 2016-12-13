@@ -72,8 +72,9 @@ sub handle_display_change {
     } else {
         configure_displays(%new_status);
         $config->{display_configs}{$current_key} = { %new_status };
-        store($config, $CONFIG_FILE);
         FvwmCommand::FvwmCommand('Restart');
         notify(summary => 'Display Konfiguration geändert', message => 'Neue Einstellung geraten.', icon => 'display.png');
     }
+    $config->{current_displays_key} = $current_key;
+    store($config, $CONFIG_FILE);
 }
