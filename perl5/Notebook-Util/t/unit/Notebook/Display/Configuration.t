@@ -90,7 +90,7 @@ subtest 'new_current_config' => sub {
         },
     );
 
-    my $new_config = new_current_config(%status);
+    my $new_config = Notebook::Display::Configuration::new_current_config(%status);
 
     my $displays_key = 'DVI-I-1;SMBX2235:LVDS-0;intern';
     is $new_config->{current_displays_key} => $displays_key, 'displays_key';
