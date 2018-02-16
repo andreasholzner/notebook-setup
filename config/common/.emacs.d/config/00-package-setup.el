@@ -1,4 +1,6 @@
 (require 'package)
-(add-to-list 'package-archives '("marmalade" . "https://marmalade-repo.org/packages/") t)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(setq package-archives
+      '(("melpa" . "https://melpa.org/packages/")
+        ("gnu" . "https://elpa.gnu.org/packages/")
+        ("org" . "http://orgmode.org/elpa/")))
 (package-initialize)

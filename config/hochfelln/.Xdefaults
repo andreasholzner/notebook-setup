@@ -4,3 +4,6 @@ URxvt.font: xft:Bitstream Vera Sans Mono:pixelsize=12:antialias=true:hinting=tru
 URxvt.letterSpace: -2
 URxvt.keysym.C-0x2b: perl:font-size:increase
 URxvt.keysym.C-0x2d: perl:font-size:decrease
+
+Xcursor.size: 12
+Xft.dpi: 96
