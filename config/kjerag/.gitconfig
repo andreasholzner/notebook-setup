@@ -1,0 +1,10 @@
+[user]
+	email = andreas.holzner@tngtech.com
+	name = Andreas Holzner
+[push]
+	default = simple
+[core]
+	editor = emacsclient -t
+	excludesfile = ~/.gitignore
+[pull]
+	rebase = true
