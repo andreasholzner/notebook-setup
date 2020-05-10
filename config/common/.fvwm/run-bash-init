@@ -1,3 +1,0 @@
-source $HOME/.bashrc
-export HISTFILE=$HOME/.fvwm/.run-dialog-history
-export PS1=""
