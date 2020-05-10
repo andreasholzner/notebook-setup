@@ -1,0 +1,1 @@
+export PATH=$HOME/.raku/bin:/usr/share/perl6/vendor/bin:$PATH
