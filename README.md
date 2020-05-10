@@ -7,6 +7,7 @@ notebook-setup
     - `common`: für alle Rechner
     - `$hostname`: spezifisch für Rechner mit `hostname = $hostname`
 -   `perl5`: Perl5 Module
+-   `raku`: Raku Module
 -   `*`: Alle anderen Verzeichnisse haben keine spezielle Bedeutung und werden einfach kopiert.
 
 ## Benutzung ##
@@ -26,7 +27,8 @@ Einfach das Skript `bootstrap.pl` aufrufen,
 ### Beschreibung ###
 
 - Konfigurationsdateien werden passend für den aktuellen Hostnamen kopiert (relativ zu `$HOME`)
-- Perl5 Module werden aktuell noch nicht behandelt
+- Perl5 werden bei Bedarf gebaut und mit `cpanm` installiert.
+- Raku Module werden aktuell noch nicht behandelt
 - Alle anderen Dateien werden einfach nach `$HOME` kopiert
 
 
