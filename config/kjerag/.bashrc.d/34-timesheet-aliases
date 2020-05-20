@@ -1,0 +1,2 @@
+alias tsp='timesheet-parser.raku'
+alias tspn='timesheet-parser.raku $(ls -t -1 ~/Dokumente/Stundenzettel/*.times | head -n 1)'
